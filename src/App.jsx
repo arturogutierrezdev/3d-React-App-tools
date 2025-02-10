@@ -1,29 +1,41 @@
-import { useState } from 'react'
-import viteLogo from './assets/sp.png'
+
+import {useRef, useState} from 'react'
+import { Canvas, useFrame } from '@react-three/fiber'
+import { OrbitControls } from '@react-three/drei'
 import './App.css'
 
-function App() {
-  const [count, setCount] = useState(0)
-
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Re_ logo" />
-        </a>
-      </div>
-      <h1>ReTeleo</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-
-    </>
-  )
+//directly controls box
+function Box(props) {
+const ref = useRef()
+const [hovered, hover]= useState(false)
+const [clicked, click] = useState(false)
+useFrame((state, delta) => (ref.current.rotation.x +=delta))
+return (
+  <mesh
+    {...props}
+    ref={ref}
+    scale={clicked ? 1.5 : 1}
+    onClick={(event) => click(!clicked)}
+    onPointerOver={(event) => (event.stopPropagation(), hover(true))}
+    onPointerOut={(event) => hover(false)}>
+    <boxGeometry args={[1, 1, 1]} />
+    <meshStandardMaterial color={hovered ? 'hotpink' : 'orange'} />
+  </mesh>
+)
 }
 
-export default App
+export default function App() {
+  return (
+    <>
+    <div className={"canvas-container"}>
+      <Canvas>
+        <Box position={[-1.2, 0, 0]} />
+        <Box position={[1.2, 0, 0]} />
+        <ambientLight intensity = {0.5} />
+        <directionalLight color="white" position={[0,0,5]} />
+        <OrbitControls />
+      </Canvas>
+    </div>
+    </>
+);
+}
